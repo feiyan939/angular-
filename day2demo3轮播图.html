@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" ng-app='myapp'>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+    .imgList {
+        position: absolute;
+        left: 0;
+        top: 0；
+    }
+    </style>
+</head>
+
+<body>
+    <div ng-controller='slideImageController'>
+        <!-- <img ng-src="{{src}}" alt="">这就是说不加载3张图片，只是更换路径 -->
+        <img ng-src="{{item.imgUrl}}" alt="" ng-repeat='item in data' ng-class='imgList' ng-show='$index==showIndex'>
+    </div>
+    <script src='bower_components/angular/angular.js'></script>
+    <script>
+    var app = angular.module('myapp', []);
+    app.controller('slideImageController', ['$http', '$scope', '$interval', function($http, $scope, $interval) {
+        // $interval(回调函数，时间间隔，运行次数) 运行次数：可写可不写
+
+        //网络请求
+        // $http  params:对应的是get方式
+        // 通过http协议拿到网络资源的东西
+        var promise = $http({
+            url: 'http://192.168.1.61:3000/getSlideInfo',
+            method: 'get',
+            params: {
+                id: '1602'
+            }
+        });
+        // 对promise的状态进行监听网络请求的状态then（成功回调，失败回调）
+        promise.then(function(res, status, config, headers) {
+            // console.log(res.data.result[0].imgUrl); 
+            console.log(res); //先看返回数据里面都有些什么
+            var data = res.data.result;//object-->data-->result:Array[3]--->id/imgUrl
+            console.log(data);
+            $scope.data = data;
+            console.log(data);
+            var index = 0; //
+            $scope.showIndex = index; //在默认状态下让图片显示为第一张
+            // 设置定时器
+            $interval(function() {
+                index++;
+                if (index == 3) {
+                    index = 0;
+                }
+                // 后台对应的那个object数组对应的下标==这里遍历出来的图片路径数组的下标
+                $scope.showIndex = index;
+            }, 1000);
+        })
+    }]);
+    </script>
+</body>
+
+</html>
